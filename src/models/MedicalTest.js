@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const MedicalTestSchema = new Schema({
-  examNo:         { type: Number,  required: true, index: true },
+  examNo:         { type: String,  required: true, index: true },
   examName:       { type: String,  required: true },
   shortName:      { type: String },
   active:         { type: Boolean, default: true },

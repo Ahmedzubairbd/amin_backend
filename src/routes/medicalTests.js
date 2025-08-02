@@ -7,36 +7,34 @@ const MedicalTest = require('../models/MedicalTest');
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
+
+
 function parseSheet(sheet) {
-  const rows     = XLSX.utils.sheet_to_json(sheet, { header:1, blankrows:false });
-  const hdrIdx   = rows.findIndex(r=>r.includes('Exam No') && r.includes('Exam Name'));
-  if (hdrIdx<0) return [];
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false });
+  const hdrIdx = rows.findIndex(r => r.includes('Exam No') && r.includes('Exam Name'));
+  if (hdrIdx < 0) return [];
 
-  const headers = rows[hdrIdx].map(h=>h?.toString().trim());
-  const meta    = rows[hdrIdx-1]||[];
-  let examType='', departmentName='';
-  meta.forEach(cell=>{
-    const s=cell?.toString();
-    if (s?.startsWith('Exam Type'))       examType = s.split(':')[1]?.trim();
-    if (s?.startsWith('Department Name'))  departmentName = s.split(':')[1]?.trim();
-  });
+  const headers = rows[hdrIdx].map(h => h?.toString().trim());
+  const data = [];
 
-  const data=[];
-  rows.slice(hdrIdx+1).forEach(row=>{
+  rows.slice(hdrIdx + 1).forEach(row => {
     if (!row.length) return;
-    const obj={ examType, departmentName };
-    headers.forEach((h,j)=>{
-      const v=row[j];
-      switch(h){
-        case 'Exam No':       obj.examNo       = Number(v); break;
-        case 'Exam Name':     obj.examName     = v;           break;
-        case 'Short Name':    obj.shortName    = v;           break;
-        case 'Active Status': obj.active       = String(v).toLowerCase()==='active'; break;
-        case 'Rate':          obj.rate         = Number(v);   break;
-        case 'Delivery Hour': obj.deliveryHour = v;           break;
+    const obj = {};
+    headers.forEach((h, j) => {
+      const v = row[j];
+      switch (h) {
+        case 'Exam Type':      obj.examType      = v?.toString().trim(); break;
+        case 'Department Name': obj.departmentName = v?.toString().trim(); break;
+        case 'Exam No':        obj.examNo        = v?.toString().trim(); break; // Store as string to match schema
+        case 'Exam Name':      obj.examName      = v?.toString().trim(); break;
+        case 'Short Name':     obj.shortName     = v?.toString().trim(); break;
+        case 'Active Status':   obj.active        = String(v).toLowerCase() === 'yes' || String(v).toLowerCase() === 'active'; break;
+        case 'Rate':           obj.rate          = Number(v); break;
+        case 'Delivery Hour':  obj.deliveryHour  = v?.toString().trim(); break;
       }
     });
-    if (obj.examNo!=null && obj.examName) data.push(obj);
+    // Ensure required fields are present and valid
+    if (obj.examNo && obj.examName && !isNaN(obj.rate)) data.push(obj);
   });
   return data;
 }
