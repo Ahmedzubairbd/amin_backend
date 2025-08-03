@@ -1,48 +1,30 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const path = require('path');
 const {
-  getDoctors,
-  getDoctorById,
   createDoctor,
+  getAllDoctors,
+  getDoctorById,
   updateDoctor,
-  deleteDoctor
-} = require('../controllers/specialistController');
+  deleteDoctor,
+  getDoctorAvailability
+} = require('../controllers/doctorController');
 
-// Multer configuration for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
-});
+// Create a new doctor
+router.post('/', createDoctor);
 
-const upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = filetypes.test(file.mimetype);
+// Get all doctors (with search and pagination)
+router.get('/', getAllDoctors);
 
-    if (extname && mimetype) {
-      return cb(null, true);
-    } else {
-      cb('Error: Images only!');
-    }
-  }
-});
+// Get a specific doctor by ID
+router.get('/:id', getDoctorById);
 
-// Routes
-router.route('/')
-  .get(getDoctors)
-  .post(upload.single('image'), createDoctor);
+// Update a doctor
+router.put('/:id', updateDoctor);
 
-router.route('/:id')
-  .get(getDoctorById)
-  .put(upload.single('image'), updateDoctor)
-  .delete(deleteDoctor);
+// Delete (deactivate) a doctor
+router.delete('/:id', deleteDoctor);
+
+// Get doctor's availability
+router.get('/:id/availability', getDoctorAvailability);
 
 module.exports = router;

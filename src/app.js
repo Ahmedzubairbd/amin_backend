@@ -54,8 +54,8 @@ app.use(cors());
 // Routes
 app.use('/api', userRoutes);
 app.use('/api/medical-tests', medicalTestsRouter);
-app.use('/api/doctors', doctorRoutes);
 app.use('/api/patients', patientRoutes);
+app.use('/api/doctors', doctorRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
