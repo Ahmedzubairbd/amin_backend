@@ -42,19 +42,17 @@ connectDB();
 const app = express();
 
 // Enable CORS for all routes
-app.use(cors());
-
-app.use(express.json()); // Body parser middleware
-app.use('/api',       userRoutes);
-app.use('/api/medical-tests', medicalTestsRouter);
-
-// Middleware
+// Body parser middleware
 app.use(express.json());
 app.use(cors());
 
-// Routes
-app.use('/api', userRoutes);
+app.use('/api',       userRoutes);
 app.use('/api/medical-tests', medicalTestsRouter);
+
+
+// Routes
+// app.use('/api', userRoutes);
+// app.use('/api/medical-tests', medicalTestsRouter);
 app.use('/api/patients', patientRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/test-results', testResultRoutes);
