@@ -36,6 +36,7 @@ const doctorRoutes = require('./routes/doctorRoutes');
 const patientRoutes = require('./routes/patientRoutes');
 const testResultRoutes = require('./routes/testResultRoutes');
 const authRoutes = require('./routes/authRoutes');
+const path = require('path');
 
 dotenv.config();
 connectDB();
@@ -46,6 +47,7 @@ const app = express();
 // Body parser middleware
 app.use(express.json());
 app.use(cors());
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 app.use('/api',       userRoutes);
 app.use('/api/auth', authRoutes);
