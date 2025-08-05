@@ -72,11 +72,7 @@ exports.registerUser = async (req, res) => {
       //   return res.status(400).json({ message: "OTP already sent! Please verify your OTP." });
       // }
 
-      // Generate OTP
-      const otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
-
-      // Send OTP via Boomcast
-      await sendOTP({ phonenumber: phone, message: `Hello ${firstName}, your OTP is ${otp}. It is valid for 3 minutes.` });
+      
 
       // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -107,49 +103,49 @@ exports.registerUser = async (req, res) => {
   });
 };
 
-exports.verifyOTP = async (req, res) => {
-  const { otp, phone } = req.body;
+// exports.verifyOTP = async (req, res) => {
+//   const { otp, phone } = req.body;
 
-  try {
-    const tempUser = await TempUser.findOne({ phone });
-    if (!tempUser) return res.status(404).json({ message: "User not found! Please register again." });
+//   try {
+//     const tempUser = await TempUser.findOne({ phone });
+//     if (!tempUser) return res.status(404).json({ message: "User not found! Please register again." });
 
-    if (tempUser.otp !== otp || tempUser.otpExpiresAt < Date.now()) {
-      return res.status(400).json({ message: "Invalid or expired OTP!" });
-    }
+//     if (tempUser.otp !== otp || tempUser.otpExpiresAt < Date.now()) {
+//       return res.status(400).json({ message: "Invalid or expired OTP!" });
+//     }
 
-    const newUser = new User({
-      firstName: tempUser.firstName,
-      lastName: tempUser.lastName,
-      email: tempUser.email,
-      phone: tempUser.phone,
-      password: tempUser.password,
-      userType: tempUser.userType, // Ensure userType is transferred
-      profileImage: tempUser.profileImage,
-      isVerified: true,
-    });
+//     const newUser = new User({
+//       firstName: tempUser.firstName,
+//       lastName: tempUser.lastName,
+//       email: tempUser.email,
+//       phone: tempUser.phone,
+//       password: tempUser.password,
+//       userType: tempUser.userType, // Ensure userType is transferred
+//       profileImage: tempUser.profileImage,
+//       isVerified: true,
+//     });
 
-    await newUser.save();
-    await TempUser.deleteOne({ phone });
+//     await newUser.save();
+//     await TempUser.deleteOne({ phone });
 
-    return res.status(200).json({ 
-      message: "OTP verified successfully!",
-      user: {
-        _id: newUser._id,
-        firstName: newUser.firstName,
-        lastName: newUser.lastName,
-        email: newUser.email,
-        phone: newUser.phone,
-        userType: newUser.userType,
-        profileImage: newUser.profileImage,
-        isVerified: newUser.isVerified
-      }
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Internal Server Error" });
-  }
-};
+//     return res.status(200).json({ 
+//       message: "OTP verified successfully!",
+//       user: {
+//         _id: newUser._id,
+//         firstName: newUser.firstName,
+//         lastName: newUser.lastName,
+//         email: newUser.email,
+//         phone: newUser.phone,
+//         userType: newUser.userType,
+//         profileImage: newUser.profileImage,
+//         isVerified: newUser.isVerified
+//       }
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
 
 exports.getAllUsers = async (req, res) => {
   try {
